@@ -220,7 +220,40 @@ esac
 LAZYEOF
     
     chmod +x "$LOCAL_BIN/lazyagent"
-    print_green "✓ Global command created: lazyagent"
+    
+    # Create big-brother specific command
+    cat > "$LOCAL_BIN/big-brother" <<'BBEOF'
+#!/usr/bin/env bash
+# Big-Brother Agent - Direct access
+
+LAZY_DIR="${HOME}/.config/opencode/lazyagent"
+BIG_BROTHER_DIR="$LAZY_DIR/lazyagent/agents/big-brother"
+
+if [[ ! -d "$BIG_BROTHER_DIR" ]]; then
+    echo "❌ Big-Brother not installed. Run: curl ... | bash" >&2
+    exit 1
+fi
+
+cat <<'HEADER'
+🧠 Big-Brother Agent
+   Senior escalation agent for unresolvable problems
+
+   Usage with oh-my-openagent:
+   task(category="escalation", prompt="your task here")
+
+   Configuration: ~/.config/opencode/lazyagent/lazyagent/agents/big-brother/
+
+Agent Capabilities:
+HEADER
+
+# Show agent capabilities from agent.md
+grep -A 30 "System role:" "$BIG_BROTHER_DIR/agent.md" 2>/dev/null || echo "   - Analyze complex problems"
+echo ""
+echo "📖 Full docs: https://github.com/Bastiblast/oh-my-lazyagent"
+BBEOF
+    chmod +x "$LOCAL_BIN/big-brother"
+    
+    print_green "✓ Global commands created: lazyagent, big-brother"
 }
 
 # Étape 5: Créer les symlinks pour OmO (si présent)
