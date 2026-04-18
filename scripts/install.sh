@@ -25,7 +25,7 @@ print_info()  { printf "INFO: %s\n" "$1"; }
 
 DRY_RUN=0
 FORCE=0
-REPO_LAZY=${REPO_LAZY:-https://github.com/oh-my-lazyagent/oh-my-lazyagent.git}
+REPO_LAZY=${REPO_LAZY:-https://github.com/Bastiblast/oh-my-lazyagent.git}
 GLOBAL_LAZY_DIR="$HOME/.config/opencode/lazyagent"
 OMO_ROOT="$HOME/.config/oh-my-openagent"
 
