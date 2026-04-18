@@ -1,140 +1,173 @@
 # oh-my-lazyagent
 
-> Community-driven agent distribution for [oh-my-openagent](https://github.com/oh-my-openagent/om-o)
+> **Un fork communautaire de [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) avec l'agent Big-Brother pour l'escalade intelligente**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/oh-my-lazyagent/oh-my-lazyagent)
-[![Contributors](https://img.shields.io/badge/contributors-welcome-green.svg)](CONTRIBUTING.md)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](./CHANGELOG.md)
+[![Fork](https://img.shields.io/badge/fork-oh--my--openagent-orange.svg)](https://github.com/code-yeongyu/oh-my-openagent)
 
-## Overview
+## 🎯 Le Projet
 
-oh-my-lazyagent is a community-driven distribution platform that extends [oh-my-openagent (OmO)](https://github.com/oh-my-openagent/om-o) with a lazy-loading extensibility layer. It provides a curated marketplace of agents, skills, hooks, and prompts that can be easily installed and managed.
+**oh-my-lazyagent** est un fork d'oh-my-openagent (OmO) qui ajoute une couche d'extensibilité communautaire avec un système d'escalade intelligent. Contrairement à un simple plugin, ce fork modifie minimalement le cœur d'OmO (3 patches seulement) pour permettre :
 
-### Key Features
+- 🧠 **Big-Brother Agent** - Un agent senior qui prend le relais quand Sisyphus est bloqué après 3 échecs
+- 📦 **Architecture Drop-in** - Ajoutez des agents en créant simplement des dossiers
+- 🔄 **Synchronisation Upstream** - Gardez votre fork à jour avec OmO automatiquement
+- 🧪 **Tests E2E** - Suite de tests complète pour valider l'escalade
 
-- **Lazy Loading**: Agents and skills load on-demand, keeping your environment lean
-- **Community Driven**: Open contribution model for agents, skills, and prompts
-- **Extensible Hooks**: Customize agent behavior with pre/post execution hooks
-- **Registry System**: Auto-generated index of all available extensions
-- **Zero Dependencies**: Core remains lightweight, extensions are optional
-
-## Installation
-
-### Quick Install
+## 🚀 Installation Rapide
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/oh-my-lazyagent/oh-my-lazyagent/main/install.sh | bash
+# One-line install (depuis ce fork)
+curl -fsSL https://raw.githubusercontent.com/Bastiblast/oh-my-lazyagent/main/scripts/install.sh | bash
 ```
 
-### Manual Install
+Ou manuellement :
 
 ```bash
-git clone https://github.com/oh-my-lazyagent/oh-my-lazyagent.git
-cd oh-my-lazyagent
-./install.sh
+git clone https://github.com/Bastiblast/oh-my-lazyagent.git ~/.config/opencode/lazyagent
+cd ~/.config/opencode/lazyagent
+./scripts/install.sh
 ```
 
-## Quick Start
+## 🏗️ Architecture
 
-1. **List Available Agents**
-
-   ```bash
-   ls lazyagent/agents/
-   ```
-
-2. **Enable an Agent**
-
-   Copy the agent directory to your om-o agents directory or link it.
-
-3. **Use Big-Brother Agent**
-
-   ```bash
-   om-o agent big-brother --context "your task here"
-   ```
-
-## Available Agents
-
-### Big-Brother
-
-A surveillance agent that monitors system resources, tracks process changes, and provides real-time system insights.
-
-**Location**: `lazyagent/agents/big-brother/`
-
-**Capabilities**:
-- System resource monitoring
-- Process tracking
-- Real-time alerts
-- Log analysis
-
-## Architecture
+### Modèle Fork + Drop-in
 
 ```
 oh-my-lazyagent/
-├── lazyagent/           # Extension root
-│   ├── agents/          # Agent definitions
-│   ├── skills/          # Skill modules
-│   ├── hooks/           # Execution hooks
-│   └── prompts/         # Prompt templates
-├── scripts/             # Utility scripts
-├── registry.json        # Auto-generated extension index
-└── README.md
+├── lazyagent/              ← Votre couche d'extensions
+│   ├── agents/
+│   │   └── big-brother/    ← Agent d'escalade phare
+│   │       ├── agent.md    ← Définition OpenCode
+│   │       ├── config.json ← Configuration modèle/permissions
+│   │       └── prompts/
+│   │           └── escalation.md
+│   ├── skills/
+│   │   └── debug-plan/
+│   │       └── SKILL.md    ← Skill de planification debug
+│   └── hooks/
+│       ├── escalation.ts   ← Détection seuil d'escalade
+│       └── types.ts        ← Interfaces TypeScript
+│
+├── patches/                ← 3 patches minimaux pour OmO
+│   ├── agent-registry.patch      ← Discovery lazyagent/agents/
+│   ├── sisyphus-escalation.patch ← Logique d'escalade
+│   ├── hook-extension.patch      ← Enregistrement hooks
+│   └── apply.sh                  ← Application idempotente
+│
+├── config/
+│   └── lazyagent.jsonc     ← Configuration overlay JSONC
+│
+├── scripts/                ← Utilitaires
+│   ├── install.sh          ← Installateur principal
+│   ├── sync-upstream.sh    ← Sync avec OmO upstream
+│   ├── validate-*.sh       ← Validation agents/structure
+│   └── generate-registry.sh ← Générateur registre
+│
+└── tests/                  ← Tests complets
+    ├── e2e/
+    │   └── escalation-flow.test.ts
+    └── unit/
+        ├── config-merge.test.ts
+        └── patch-apply.test.ts
 ```
 
-### Components
-
-- **Agents**: Standalone agent implementations with their own prompts and logic
-- **Skills**: Reusable capability modules that agents can utilize
-- **Hooks**: Pre/post execution scripts for customization
-- **Prompts**: Template prompts used by agents
-
-## Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Adding an Agent
-
-1. Create a new directory under `lazyagent/agents/your-agent-name/`
-2. Add `agent.yaml` with agent metadata
-3. Add prompt templates in `prompts/`
-4. Update `registry.json` by running `scripts/update-registry.sh`
-5. Submit a pull request
-
-### Adding a Skill
-
-1. Create a new directory under `lazyagent/skills/your-skill-name/`
-2. Add `skill.yaml` with skill metadata
-3. Submit a pull request
-
-## Directory Structure
+### Flow d'Escalade Big-Brother
 
 ```
-.
-├── lazyagent/
-│   ├── agents/          # Agent definitions
-│   ├── skills/           # Skill modules
-│   ├── hooks/            # Execution hooks
-│   ├── prompts/          # Prompt templates
-│   └── registry.json     # Extension registry
-├── scripts/              # Utility scripts
-├── CONTRIBUTING.md       # Contribution guidelines
-├── LICENSE               # MIT License
-└── README.md             # This file
+Sisyphus travaille sur une tâche
+    ↓ Échec détecté
+    Incrémente failure_count
+    ↓ 3 échecs consécutifs ?
+    Génère rapport d'escalade
+    ↓
+task(category="escalation", prompt=rapport)
+    ↓
+Big-Brother analyse & répond
+    ↓
+Sisyphus reprend avec plan de debug
 ```
 
-## License
+## 🎨 Contribuer
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Ce fork est conçu pour être **community-driven**. Ajoutez vos agents facilement :
 
-## Links
+```bash
+# 1. Créez un dossier pour votre agent
+mkdir lazyagent/agents/mon-agent
 
-- [oh-my-openagent (OmO)](https://github.com/oh-my-openagent/om-o)
-- [Documentation](https://github.com/oh-my-lazyagent/oh-my-lazyagent/wiki)
-- [Issue Tracker](https://github.com/oh-my-lazyagent/oh-my-lazyagent/issues)
+# 2. Ajoutez les fichiers requis:
+#    - agent.md (définition OpenCode)
+#    - config.json (modèle, permissions)
+#    - prompts/ (templates de prompts)
 
-## Maintainers
+# 3. Validez votre agent
+./scripts/validate-agent.sh lazyagent/agents/mon-agent
 
-- [Bastien](https://github.com/bastien) - Maintainer
+# 4. Mettez à jour le registre
+./scripts/generate-registry.sh
+
+# 5. Soumettez une PR !
+```
+
+Voir [CONTRIBUTING.md](./CONTRIBUTING.md) pour les détails complets.
+
+## 🔄 Synchronisation avec Upstream
+
+Gardez votre fork à jour avec oh-my-openagent :
+
+```bash
+./scripts/sync-upstream.sh
+# Gère les conflits, vérifie la compatibilité, met à jour les patches
+```
+
+**Seulement 3 patches à maintenir** - tous petits et bien documentés.
+
+## 📦 Historique des Commits
+
+Projet construit avec des commits atomiques :
+
+```
+08bc9f4 fix: update install script with correct repo URL
+5b023f6 docs: add CHANGELOG and CONTRIBUTING  
+421a0c0 chore: add LICENSE and original SPEC
+65df5da feat: add documentation and test suite
+ce2e116 feat: add OmO integration patches and config system
+456994b feat: initialize project structure
+```
+
+## 🧪 Tests
+
+```bash
+# Validation structurelle
+./scripts/validate-structure.sh
+
+# Tests unitaires
+npm run test:unit
+
+# Tests E2E
+npm run test:e2e
+```
+
+## 📚 Documentation
+
+- [Architecture](./docs/architecture.md) - Design système et décisions
+- [Contributing](./CONTRIBUTING.md) - Guide contribution détaillé
+- [Changelog](./CHANGELOG.md) - Historique des versions
+
+## 🔗 Liens
+
+- **Upstream** : [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)
+- **Ce fork** : [Bastiblast/oh-my-lazyagent](https://github.com/Bastiblast/oh-my-lazyagent)
+- **Issues** : [GitHub Issues](https://github.com/Bastiblast/oh-my-lazyagent/issues)
+
+## 📝 License
+
+MIT - Voir [LICENSE](./LICENSE)
 
 ---
 
-**Star us if you find this useful!** ⭐
+**Fork créé avec ❤️ pour la communauté oh-my-openagent**
+
+⭐ Star ce repo si tu trouves ça utile !
