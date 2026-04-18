@@ -51,30 +51,44 @@ main() {
     ln -sfn "$GLOBAL_LAZY_DIR" "$PROJECT_LAZY_LINK"
   fi
 
-  # Configure Big-Brother in oh-my-openagent
-  # OmO reads agents from ~/.config/opencode/oh-my-openagent.json
-  OMO_CONFIG="$HOME/.config/opencode/oh-my-openagent.json"
+  # Create OpenCode configuration files in project
+  # OpenCode looks for .opencode/opencode.json and .opencode/oh-my-openagent.json
   
-  if [[ -f "$OMO_CONFIG" ]]; then
-    if command -v jq >/dev/null 2>&1; then
-      # Add big-brother to agents section
-      tmp=$(mktemp)
-      jq '.agents["big-brother"] = {
-        "model": "opencode-go/glm-5",
-        "fallback_models": [{"model": "opencode-go/kimi-k2.5"}],
-        "category": "escalation",
-        "mode": "subagent"
-      } | .categories["escalation"] = {
-        "model": "opencode-go/glm-5"
-      }' "$OMO_CONFIG" > "$tmp" && mv "$tmp" "$OMO_CONFIG"
-      print_green "Configured big-brother in oh-my-openagent"
-    else
-      print_info "jq not available, cannot auto-configure oh-my-openagent"
-      print_info "Please manually add big-brother to $OMO_CONFIG"
-    fi
-  else
-    print_info "oh-my-openagent config not found at $OMO_CONFIG"
-  fi
+  # 1. Create opencode.json (basic OpenCode config)
+  OPENODE_JSON="$PROJECT_DIR/.opencode/opencode.json"
+  cat > "$OPENODE_JSON" <<EOF
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "oh-my-openagent@latest"
+  ]
+}
+EOF
+  
+  # 2. Create oh-my-openagent.json (agent configuration)
+  OMO_JSON="$PROJECT_DIR/.opencode/oh-my-openagent.json"
+  cat > "$OMO_JSON" <<EOF
+{
+  "\$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+  "agents": {
+    "big-brother": {
+      "model": "opencode-go/glm-5",
+      "fallback_models": [
+        {"model": "opencode-go/kimi-k2.5"}
+      ],
+      "category": "escalation",
+      "mode": "subagent"
+    }
+  },
+  "categories": {
+    "escalation": {
+      "model": "opencode-go/glm-5"
+    }
+  }
+}
+EOF
+  
+  print_green "Created .opencode/opencode.json and .opencode/oh-my-openagent.json"
 
   # Merge project-specific config if present
   if [ -f "$PROJECT_CONFIG" ]; then
