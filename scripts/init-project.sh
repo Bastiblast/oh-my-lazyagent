@@ -51,6 +51,32 @@ main() {
     ln -sfn "$GLOBAL_LAZY_DIR" "$PROJECT_LAZY_LINK"
   fi
 
+  # Create OpenCode agent configuration
+  LAZYAGENT_JSON="$PROJECT_DIR/.opencode/lazyagent.json"
+  cat > "$LAZYAGENT_JSON" <<EOF
+{
+  "agents": {
+    "big-brother": {
+      "path": ".opencode/lazyagent/lazyagent/agents/big-brother",
+      "enabled": true,
+      "category": "escalation",
+      "description": "Senior escalation agent for unresolvable problems"
+    }
+  },
+  "agent_discovery": {
+    "paths": [
+      ".opencode/lazyagent/lazyagent/agents/*"
+    ],
+    "auto_register": true
+  },
+  "oh-my-lazyagent": {
+    "version": "1.0.0",
+    "installed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  }
+}
+EOF
+  print_green "Created .opencode/lazyagent.json for OpenCode agent discovery"
+
   # Merge project-specific config if present
   if [ -f "$PROJECT_CONFIG" ]; then
     DEST_CONFIG="$GLOBAL_LAZY_DIR/config/project-config.json"
