@@ -22,11 +22,44 @@ cd mon-projet
 lazyagent init
 ```
 
-Cela crée un symlink `.opencode/lazyagent` → installation globale.
+Cela crée :
+- Un symlink `.opencode/lazyagent` → installation globale
+- Un fichier `.opencode/lazyagent.json` avec la configuration des agents pour OpenCode
 
-### Étape 3: Utiliser Big-Brother dans votre projet
+### Étape 3: Activer dans OpenCode (VS Code/Cursor)
 
-Une fois initialisé, Big-Brother est accessible via OpenCode/OmO qui découvrent automatiquement les agents dans `.opencode/lazyagent/agents/`.
+Dans votre éditeur avec l'extension OpenCode :
+
+1. **Vérifiez que le fichier existe** :
+   ```bash
+   ls -la .opencode/lazyagent.json
+   # Doit montrer le fichier avec la config de big-brother
+   ```
+
+2. **Rechargez la fenêtre OpenCode** (si nécessaire) :
+   - Command Palette → "Developer: Reload Window"
+   - Ou redémarrez VS Code/Cursor
+
+3. **Vérifiez que l'agent est disponible** :
+   ```bash
+   cat .opencode/lazyagent.json | grep big-brother
+   # Doit montrer la configuration de big-brother
+   ```
+
+### Étape 4: Utiliser Big-Brother
+
+Une fois activé, utilisez Big-Brother dans vos conversations avec Sisyphus :
+
+```typescript
+// Si Sisyphus est bloqué après 3 échecs
+// Big-Brother est automatiquement invoqué via category="escalation"
+
+task(category="escalation", prompt=`
+  Problème: [votre problème ici]
+  Contexte: [erreurs précédentes]
+  Fichiers modifiés: [liste]
+`)
+```
 
 ## ⚙️ Configuration
 
@@ -62,6 +95,51 @@ Pour l'escalade automatique après 3 échecs de Sisyphus :
 cd ~/.config/opencode/lazyagent/patches
 ./apply.sh
 ```
+
+## 🔍 Dépannage OpenCode
+
+### Problème : OpenCode ne voit pas les agents
+
+**Symptôme** : Le fichier `.opencode/lazyagent.json` existe mais OpenCode ne détecte pas big-brother.
+
+**Solutions** :
+
+1. **Vérifier la structure** :
+   ```bash
+   # Doit montrer:
+   # .opencode/lazyagent.json (config)
+   # .opencode/lazyagent/ -> ~/.config/opencode/lazyagent (symlink)
+   ls -la .opencode/
+   
+   # Doit montrer big-brother/
+   ls .opencode/lazyagent/lazyagent/agents/
+   ```
+
+2. **Vérifier le contenu JSON** :
+   ```bash
+   cat .opencode/lazyagent.json
+   # Doit contenir "agents" avec "big-brother"
+   ```
+
+3. **Si le fichier n'existe pas, recréez-le** :
+   ```bash
+   lazyagent init  # Recrée le fichier
+   ```
+
+4. **Manuellement** (si `lazyagent init` ne fonctionne pas) :
+   ```bash
+   cat > .opencode/lazyagent.json <<'EOF'
+{
+  "agents": {
+    "big-brother": {
+      "path": ".opencode/lazyagent/lazyagent/agents/big-brother",
+      "enabled": true,
+      "category": "escalation"
+    }
+  }
+}
+EOF
+   ```
 
 ## 📝 Vérification
 
