@@ -51,36 +51,30 @@ main() {
     ln -sfn "$GLOBAL_LAZY_DIR" "$PROJECT_LAZY_LINK"
   fi
 
-  # Create OpenCode agents directory and link big-brother
-  # OpenCode discovers agents from .opencode/agents/*.md files
-  AGENTS_DIR="$PROJECT_DIR/.opencode/agents"
-  mkdir -p "$AGENTS_DIR"
+  # Configure Big-Brother in oh-my-openagent
+  # OmO reads agents from ~/.config/opencode/oh-my-openagent.json
+  OMO_CONFIG="$HOME/.config/opencode/oh-my-openagent.json"
   
-  # Link big-brother agent definition for OpenCode
-  BIG_BROTHER_SRC="$GLOBAL_LAZY_DIR/lazyagent/agents/big-brother/agent.md"
-  BIG_BROTHER_LINK="$AGENTS_DIR/big-brother.md"
-  
-  if [[ -f "$BIG_BROTHER_SRC" ]]; then
-    if [[ -L "$BIG_BROTHER_LINK" ]] || [[ -e "$BIG_BROTHER_LINK" ]]; then
-      rm -f "$BIG_BROTHER_LINK"
+  if [[ -f "$OMO_CONFIG" ]]; then
+    if command -v jq >/dev/null 2>&1; then
+      # Add big-brother to agents section
+      tmp=$(mktemp)
+      jq '.agents["big-brother"] = {
+        "model": "opencode-go/glm-5",
+        "fallback_models": [{"model": "opencode-go/kimi-k2.5"}],
+        "category": "escalation",
+        "mode": "subagent"
+      } | .categories["escalation"] = {
+        "model": "opencode-go/glm-5"
+      }' "$OMO_CONFIG" > "$tmp" && mv "$tmp" "$OMO_CONFIG"
+      print_green "Configured big-brother in oh-my-openagent"
+    else
+      print_info "jq not available, cannot auto-configure oh-my-openagent"
+      print_info "Please manually add big-brother to $OMO_CONFIG"
     fi
-    ln -sfn "$BIG_BROTHER_SRC" "$BIG_BROTHER_LINK"
-    print_green "Linked big-brother agent to .opencode/agents/"
   else
-    print_red "Big-Brother agent.md not found at $BIG_BROTHER_SRC"
+    print_info "oh-my-openagent config not found at $OMO_CONFIG"
   fi
-  
-  # Create minimal lazyagent.json for tracking (not used by OpenCode)
-  LAZYAGENT_JSON="$PROJECT_DIR/.opencode/lazyagent.json"
-  cat > "$LAZYAGENT_JSON" <<EOF
-{
-  "oh-my-lazyagent": {
-    "version": "1.0.0",
-    "installed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-    "note": "Agents are defined in .opencode/agents/ for OpenCode"
-  }
-}
-EOF
 
   # Merge project-specific config if present
   if [ -f "$PROJECT_CONFIG" ]; then
