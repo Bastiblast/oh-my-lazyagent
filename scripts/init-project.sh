@@ -51,23 +51,28 @@ main() {
     ln -sfn "$GLOBAL_LAZY_DIR" "$PROJECT_LAZY_LINK"
   fi
 
-  # Create OpenCode agent configuration
-  LAZYAGENT_JSON="$PROJECT_DIR/.opencode/lazyagent.json"
-  cat > "$LAZYAGENT_JSON" <<EOF
+  # Create OpenCode configuration for agent discovery
+  # This file tells OpenCode where to find the agents
+  OPENCODE_JSON="$PROJECT_DIR/.opencode/opencode.json"
+  
+  if [[ -f "$OPENCODE_JSON" ]]; then
+    # File exists, we need to merge our config
+    print_info "Existing .opencode/opencode.json found, backing up..."
+    cp "$OPENCODE_JSON" "$OPENCODE_JSON.backup.$(date +%s)"
+  fi
+  
+  cat > "$OPENCODE_JSON" <<EOF
 {
+  "\$schema": "https://opencode.ai/config.json",
+  "agents_directory": ".opencode/lazyagent/lazyagent/agents",
   "agents": {
     "big-brother": {
       "path": ".opencode/lazyagent/lazyagent/agents/big-brother",
       "enabled": true,
       "category": "escalation",
+      "mode": "subagent",
       "description": "Senior escalation agent for unresolvable problems"
     }
-  },
-  "agent_discovery": {
-    "paths": [
-      ".opencode/lazyagent/lazyagent/agents/*"
-    ],
-    "auto_register": true
   },
   "oh-my-lazyagent": {
     "version": "1.0.0",
@@ -75,7 +80,7 @@ main() {
   }
 }
 EOF
-  print_green "Created .opencode/lazyagent.json for OpenCode agent discovery"
+  print_green "Created .opencode/opencode.json for OpenCode agent discovery"
 
   # Merge project-specific config if present
   if [ -f "$PROJECT_CONFIG" ]; then
