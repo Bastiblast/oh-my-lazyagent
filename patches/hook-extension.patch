@@ -1,0 +1,21 @@
+--- a/src/hooks/index.ts
++++ b/src/hooks/index.ts
+@@
++// Lazy-agent hook loader: load and register hooks from lazyagent/hooks/
++import fs from 'fs';
++import path from 'path';
++const LAZY_HOOKS_DIR = path.resolve(__dirname, '../../../../lazyagent/hooks');
++
++export function registerLazyHooks(ctx: any) {
++  if (!fs.existsSync(LAZY_HOOKS_DIR)) return;
++  for (const f of fs.readdirSync(LAZY_HOOKS_DIR).filter(x => x.endsWith('.ts'))) {
++    try {
++      const mod = require(path.join(LAZY_HOOKS_DIR, f)).default;
++      if (mod && typeof mod.register === 'function') mod.register(ctx);
++    } catch {}
++  }
++}
++
++if (typeof lifecycle !== 'undefined' && typeof lifecycle.onInit === 'function') {
++  lifecycle.onInit((ctx: any) => registerLazyHooks(ctx));
++}

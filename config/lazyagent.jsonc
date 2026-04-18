@@ -1,0 +1,32 @@
+// oh-my-lazyagent configuration overlay
+{
+  "version": "1.0.0",
+  "omoVersion": ">=1.2.0",
+
+  "categories": {
+    "escalation": {
+      "model": "opencode-go/glm-5",
+      "description": "Senior debugging for stuck tasks",
+      "routing": {
+        "enabled": true,
+        "strategy": "big-brother",
+        "priority": "high"
+      },
+      "thresholds": {
+        "stalledHours": 2,
+        "responseTimeMs": 500
+      }
+    }
+  },
+
+  "agents": {
+    "big-brother": {
+      "enabled": true,
+      "version": "latest",
+      "config": {
+        "timeoutMs": 30000,
+        "preset": "default"
+      }
+    }
+  }
+}

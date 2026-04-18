@@ -1,0 +1,31 @@
+--- a/src/plugin-handlers/agents/index.ts
++++ b/src/plugin-handlers/agents/index.ts
+@@
++// Lazyagent discovery patch
++// Discover and register agents defined under lazyagent/agents/
++import fs from 'fs';
++import path from 'path';
++const LAZY_ROOT = path.resolve(__dirname, '../../../../lazyagent/agents');
++
++function __ohmy_lazy_discover(registry: any) {
++  try {
++    if (!registry || typeof registry.registerAgent !== 'function') return;
++    if (!fs.existsSync(LAZY_ROOT)) return;
++    for (const entry of fs.readdirSync(LAZY_ROOT, { withFileTypes: true })) {
++      if (!entry.isDirectory()) continue;
++      const cfg = path.join(LAZY_ROOT, entry.name, 'config.json');
++      if (fs.existsSync(cfg)) {
++        try {
++          const data = JSON.parse(fs.readFileSync(cfg, 'utf8'));
++          if (data && data.name) {
++            registry.registerAgent({ id: `lazy/${entry.name}`, ...data });
++          }
++        } catch {}
++      }
++    }
++  } catch {}
++}
++
++if (typeof registry !== 'undefined' && typeof registry.registerAgent === 'function') {
++  __ohmy_lazy_discover(registry);
++}
