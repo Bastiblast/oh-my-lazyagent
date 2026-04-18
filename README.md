@@ -15,49 +15,40 @@
 - 🔄 **Synchronisation Upstream** - Gardez votre fork à jour avec OmO automatiquement
 - 🧪 **Tests E2E** - Suite de tests complète pour valider l'escalade
 
-## 🚀 Installation Rapide
+## 🚀 Installation & Utilisation
+
+### 1. Installer globalement (une seule fois)
 
 ```bash
-# One-line install (depuis ce fork)
+# One-line install
 curl -fsSL https://raw.githubusercontent.com/Bastiblast/oh-my-lazyagent/main/scripts/install.sh | bash
 
-# Rechargez votre shell
+# Ajoutez au PATH (ajoutez cette ligne à votre ~/.bashrc ou ~/.zshrc)
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-## 🎮 Utilisation
+Cela installe :
+- Les agents et skills dans `~/.config/opencode/lazyagent/`
+- La commande globale `lazyagent`
 
-Après installation, la commande `lazyagent` est disponible globalement :
+### 2. Initialiser dans un projet de travail
 
 ```bash
-# Initialiser lazyagent dans un projet
 cd mon-projet
 lazyagent init
-
-# Synchroniser avec oh-my-openagent upstream  
-lazyagent sync
-
-# Valider un agent
-lazyagent validate lazyagent/agents/big-brother
-
-# Valider tout le projet
-lazyagent validate-all
-
-# Mettre à jour le registre
-lazyagent generate-registry
-
-# Voir toutes les commandes
-lazyagent help
 ```
 
-### Sans la commande globale
+Cela crée un symlink `.opencode/lazyagent → ~/.config/opencode/lazyagent`
 
-Si vous préférez utiliser les scripts directement :
+Les agents (comme Big-Brother) sont maintenant accessibles dans ce projet via OpenCode/OmO.
+
+### 3. Commandes disponibles
 
 ```bash
-~/.config/opencode/lazyagent/scripts/init-project.sh    # Init projet
-~/.config/opencode/lazyagent/scripts/sync-upstream.sh   # Sync upstream
-~/.config/opencode/lazyagent/scripts/validate-agent.sh  # Validation
+lazyagent init              # Initialiser dans le dossier courant
+lazyagent sync              # Synchroniser avec oh-my-openagent upstream
+lazyagent validate-all      # Valider tous les agents
+lazyagent help              # Voir toutes les commandes
 ```
 
 ## 🏗️ Architecture
