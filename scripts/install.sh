@@ -164,6 +164,88 @@ validate_install() {
   fi
 }
 
+create_binaries() {
+  # Create wrapper binaries in ~/.local/bin for global access
+  LOCAL_BIN="$HOME/.local/bin"
+  
+  if [ "$DRY_RUN" -eq 1 ]; then
+    print_info "[DRY-RUN] Would create binaries in $LOCAL_BIN"
+    return 0
+  fi
+  
+  mkdir -p "$LOCAL_BIN"
+  
+  # Main lazyagent command
+  cat > "$LOCAL_BIN/lazyagent" <<'EOF'
+#!/usr/bin/env bash
+# oh-my-lazyagent main command
+LAZY_DIR="$HOME/.config/opencode/lazyagent"
+
+if [ ! -d "$LAZY_DIR" ]; then
+  echo "Error: oh-my-lazyagent not installed at $LAZY_DIR"
+  echo "Run: curl -fsSL https://raw.githubusercontent.com/Bastiblast/oh-my-lazyagent/main/scripts/install.sh | bash"
+  exit 1
+fi
+
+case "${1:-}" in
+  init)
+    shift
+    "$LAZY_DIR/scripts/init-project.sh" "$@"
+    ;;
+  sync)
+    "$LAZY_DIR/scripts/sync-upstream.sh"
+    ;;
+  validate)
+    shift
+    "$LAZY_DIR/scripts/validate-agent.sh" "$@"
+    ;;
+  validate-all)
+    "$LAZY_DIR/scripts/validate-all.sh"
+    ;;
+  generate-registry)
+    "$LAZY_DIR/scripts/generate-registry.sh"
+    ;;
+  help|--help|-h)
+    echo "oh-my-lazyagent - Community fork of oh-my-openagent with Big-Brother escalation"
+    echo ""
+    echo "Usage: lazyagent <command> [options]"
+    echo ""
+    echo "Commands:"
+    echo "  init [path]       Initialize lazyagent in a project directory"
+    echo "  sync              Sync with oh-my-openagent upstream"
+    echo "  validate <agent>  Validate an agent directory"
+    echo "  validate-all      Validate all agents and structure"
+    echo "  generate-registry Update registry.json"
+    echo "  help              Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  lazyagent init                    # Init in current directory"
+    echo "  lazyagent init /path/to/project   # Init in specific directory"
+    echo "  lazyagent sync                    # Sync with upstream"
+    echo "  lazyagent validate ./lazyagent/agents/big-brother"
+    ;;
+  *)
+    # Default: show help
+    exec "$0" help
+    ;;
+esac
+EOF
+  chmod +x "$LOCAL_BIN/lazyagent"
+  
+  # Legacy wrappers for backward compatibility
+  ln -sf "$LOCAL_BIN/lazyagent" "$LOCAL_BIN/lazyagent-init" 2>/dev/null || true
+  
+  print_green "Created global command: lazyagent"
+  print_info "Make sure ~/.local/bin is in your PATH"
+  
+  # Check if ~/.local/bin is in PATH
+  if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    print_info "WARNING: ~/.local/bin is not in your PATH"
+    print_info "Add this to your ~/.bashrc or ~/.zshrc:"
+    print_info 'export PATH="$HOME/.local/bin:$PATH"'
+  fi
+}
+
 main() {
   print_info "Starting installation sequence..."
   require_git
@@ -177,12 +259,21 @@ main() {
   merge_config
   symlink_agents
   validate_install
+  create_binaries
 
   print_green "Wave 5 installation completed successfully."
   echo
   echo "Next steps:"
-  echo " - Use per-project init (scripts/init-project.sh) to enable LazyAgent in projects" 
-  echo " - Run with --dry-run to test changes; use --force to overwrite existing installations"
+  echo ""
+  echo "  1. Reload your shell or run: export PATH=\"\$HOME/.local/bin:\$PATH\""
+  echo "  2. Use 'lazyagent' command anywhere:"
+  echo "     - lazyagent init              # Initialize in current project"
+  echo "     - lazyagent sync              # Sync with upstream"
+  echo "     - lazyagent validate <agent>  # Validate an agent"
+  echo "     - lazyagent help              # Show all commands"
+  echo ""
+  echo "  3. Or use the traditional way:"
+  echo "     - ~/.config/opencode/lazyagent/scripts/init-project.sh"
 }
 
 main "$@"
