@@ -2,7 +2,25 @@
 
 ## ⚠️ Important Notice
 
-The files in this directory are **code templates**, not traditional patch files. They cannot be applied with the `patch` command because they require the actual oh-my-openagent (OmO) source files which are not publicly available in a patchable format.
+**These are NOT applicable patches!**
+
+The files in this directory are **code templates/reference only**. They **CANNOT** be applied with `patch -p0` or any patch tool because:
+
+1. **Target files don't exist here** - They reference OmO core files (`src/plugin-handlers/agents/index.ts`, etc.) that are in the oh-my-openagent repository, not this one
+2. **Wrong repository** - These patches must be applied to OmO's source code, not oh-my-lazyagent
+3. **Not for end users** - They are provided for reference only, for developers who want to fork and modify OmO
+
+### ❌ Don't try to apply these patches here
+
+```bash
+# This will FAIL - files don't exist here
+patch -p0 < agent-registry.patch
+# Error: can't find file to patch at input line 3
+```
+
+### ✅ Use setup-omo instead
+
+For end users, use the configuration-based approach:
 
 ## 🎯 Purpose
 
