@@ -1,14 +1,16 @@
 --- a/src/agents/sisyphus/system-prompt.ts
 +++ b/src/agents/sisyphus/system-prompt.ts
-@@
--const BASE_PROMPT = `You are Sisyphus, a relentless task agent. ...`;
-+const BASE_PROMPT = `You are Sisyphus, a relentless task agent. ...`;
+@@ -1,5 +1,13 @@
+ const BASE_PROMPT = `You are Sisyphus, a relentless task agent. ...`;
+ 
 +// Big-Brother escalation logic: track failures and escalate after 3 consecutive failures
 +const ESCALATION_LOGIC = `
 +Escalation rules:
 +- Track failure_count in task context
 +- If failure_count >= 3 for a task, generate an escalation report and call task(category="escalation") with the report
 +`;
-@@
++
+ // ... rest of original content
+ 
 -  return `${BASE_PROMPT} ...`;
 +  return `${BASE_PROMPT}\n${ESCALATION_LOGIC} ...`;
