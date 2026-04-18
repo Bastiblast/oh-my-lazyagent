@@ -51,36 +51,36 @@ main() {
     ln -sfn "$GLOBAL_LAZY_DIR" "$PROJECT_LAZY_LINK"
   fi
 
-  # Create OpenCode configuration for agent discovery
-  # This file tells OpenCode where to find the agents
-  OPENCODE_JSON="$PROJECT_DIR/.opencode/opencode.json"
+  # Create OpenCode agents directory and link big-brother
+  # OpenCode discovers agents from .opencode/agents/*.md files
+  AGENTS_DIR="$PROJECT_DIR/.opencode/agents"
+  mkdir -p "$AGENTS_DIR"
   
-  if [[ -f "$OPENCODE_JSON" ]]; then
-    # File exists, we need to merge our config
-    print_info "Existing .opencode/opencode.json found, backing up..."
-    cp "$OPENCODE_JSON" "$OPENCODE_JSON.backup.$(date +%s)"
+  # Link big-brother agent definition for OpenCode
+  BIG_BROTHER_SRC="$GLOBAL_LAZY_DIR/lazyagent/agents/big-brother/agent.md"
+  BIG_BROTHER_LINK="$AGENTS_DIR/big-brother.md"
+  
+  if [[ -f "$BIG_BROTHER_SRC" ]]; then
+    if [[ -L "$BIG_BROTHER_LINK" ]] || [[ -e "$BIG_BROTHER_LINK" ]]; then
+      rm -f "$BIG_BROTHER_LINK"
+    fi
+    ln -sfn "$BIG_BROTHER_SRC" "$BIG_BROTHER_LINK"
+    print_green "Linked big-brother agent to .opencode/agents/"
+  else
+    print_red "Big-Brother agent.md not found at $BIG_BROTHER_SRC"
   fi
   
-  cat > "$OPENCODE_JSON" <<EOF
+  # Create minimal lazyagent.json for tracking (not used by OpenCode)
+  LAZYAGENT_JSON="$PROJECT_DIR/.opencode/lazyagent.json"
+  cat > "$LAZYAGENT_JSON" <<EOF
 {
-  "\$schema": "https://opencode.ai/config.json",
-  "agents_directory": ".opencode/lazyagent/lazyagent/agents",
-  "agents": {
-    "big-brother": {
-      "path": ".opencode/lazyagent/lazyagent/agents/big-brother",
-      "enabled": true,
-      "category": "escalation",
-      "mode": "subagent",
-      "description": "Senior escalation agent for unresolvable problems"
-    }
-  },
   "oh-my-lazyagent": {
     "version": "1.0.0",
-    "installed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    "installed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+    "note": "Agents are defined in .opencode/agents/ for OpenCode"
   }
 }
 EOF
-  print_green "Created .opencode/opencode.json for OpenCode agent discovery"
 
   # Merge project-specific config if present
   if [ -f "$PROJECT_CONFIG" ]; then
