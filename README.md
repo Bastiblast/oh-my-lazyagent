@@ -20,14 +20,44 @@
 ```bash
 # One-line install (depuis ce fork)
 curl -fsSL https://raw.githubusercontent.com/Bastiblast/oh-my-lazyagent/main/scripts/install.sh | bash
+
+# Rechargez votre shell
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-Ou manuellement :
+## 🎮 Utilisation
+
+Après installation, la commande `lazyagent` est disponible globalement :
 
 ```bash
-git clone https://github.com/Bastiblast/oh-my-lazyagent.git ~/.config/opencode/lazyagent
-cd ~/.config/opencode/lazyagent
-./scripts/install.sh
+# Initialiser lazyagent dans un projet
+cd mon-projet
+lazyagent init
+
+# Synchroniser avec oh-my-openagent upstream  
+lazyagent sync
+
+# Valider un agent
+lazyagent validate lazyagent/agents/big-brother
+
+# Valider tout le projet
+lazyagent validate-all
+
+# Mettre à jour le registre
+lazyagent generate-registry
+
+# Voir toutes les commandes
+lazyagent help
+```
+
+### Sans la commande globale
+
+Si vous préférez utiliser les scripts directement :
+
+```bash
+~/.config/opencode/lazyagent/scripts/init-project.sh    # Init projet
+~/.config/opencode/lazyagent/scripts/sync-upstream.sh   # Sync upstream
+~/.config/opencode/lazyagent/scripts/validate-agent.sh  # Validation
 ```
 
 ## 🏗️ Architecture
