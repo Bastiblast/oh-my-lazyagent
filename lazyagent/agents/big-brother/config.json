@@ -1,0 +1,28 @@
+{
+  "name": "big-brother",
+  "version": "1.0.0",
+  "description": "Senior escalation agent for unresolvable problems",
+  "author": "oh-my-lazyagent community",
+  "model": "opencode-go/glm-5",
+  "fallback_models": [
+    { "model": "opencode-go/kimi-k2.5" }
+  ],
+  "temperature": 0.2,
+  "thinking": {
+    "type": "enabled",
+    "budgetTokens": 8000
+  },
+  "category": "escalation",
+  "mode": "subagent",
+  "permissions": {
+    "read": "allow",
+    "edit": "allow",
+    "bash": "allow",
+    "task": "allow",
+    "webfetch": "allow"
+  },
+  "triggers": {
+    "boulder_threshold": 3,
+    "consecutive_failures": 3
+  }
+}
